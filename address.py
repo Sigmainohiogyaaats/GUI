@@ -6,10 +6,19 @@ address_book = {}
 
 
 def on_select(event):
-    selected_index = listbox.curselection()
+    selected_index = listbox.curselection() 
+    show_detail = ""
     if selected_index:
-        selected_value = listbox.get(selected_index)
-        messagebox.showinfo("Selected Item", f"You selected: {selected_value}")
+        name_value = listbox.get(selected_index)
+        print(name_value)
+        details = address_book[name_value] 
+        show_detail = "\nName   :   " + name_value + "\n"
+        show_detail += "Birthday    :    " + details[0] + "\n"
+        show_detail += "Address     :    " + details[1] + "\n"
+        show_detail += "Mobile      :    " + details[2] + "\n"
+        show_detail += "Email       :    " + details[3] + "\n"
+
+        messagebox.showinfo("Selected Item", f"You selected: {show_detail}")
 
 def add_item():
     new_name = entry_name.get()
@@ -18,18 +27,25 @@ def add_item():
     new_mobile = entry_mobile.get() 
     new_email = entry_email.get()
     if new_name and new_birthday and new_address and new_email and new_mobile: 
-        address_book[new_name] = [new_birthday,new_address,new_mobile,new_email]
-        
-
+        address_book[new_name] = [new_birthday,new_address,new_mobile,new_email] 
+        if new_name not in address_book: 
+            listbox.insert(tk.END, new_name)
     else:
-        messagebox.showwarning("Warning", "all fields are mandatory!") 
+        messagebox.showwarning("Warning", "all fields are mandatory!")  
+    clear_all()
+
+def clear_all(): 
+    entry_name.delete(0,tk.END)
+    entry_birthday.delete(0,tk.END) 
+    entry_address.delete(0,tk.END) 
+    entry_mobile.delete(0,tk.END) 
+    entry_email.delete(0,tk.END) 
+
+def reset(): 
+    clear_all() 
+    listbox.delete(0,tk.END) 
+    address_book.clear()
     
-    for items in address_book:  
-        listbox.insert(tk.END, items) 
-
-
-
-
 
 def delete_item():
     selected_index = listbox.curselection()
@@ -39,19 +55,25 @@ def delete_item():
         messagebox.showwarning("Warning", "Please select an item to delete.") 
 
 def open_file(): 
-    file_to_open = askopenfile()
-    if file_to_open:
-        listbox.delete(0, tk.END)
-        for item in file_to_open:
-            listbox.insert(tk.END)
+    #open filedialog box to select the files you want to read and get the content 
+    file_to_open = askopenfile() 
 
+    if file_to_open: 
+        reset()
+
+        #reading the content of the file 
+        address_book = eval(file_to_open.read()) 
+        for key in address_book: 
+            listbox.insert(tk.END, key) 
+    else: 
+        messagebox.showwarning("Warning","invalid file, please select a file!")
+        
 def save_items():
-    file_to_save = asksaveasfile(defaultextension='.txt')
-    if file_to_save:
-        lb_items = listbox.get(0, tk.END)
-        for item in lb_items:
-            print(item, file=file_to_save)
-        listbox.delete(0, tk.END)
+    #saving listbox items onto a file.
+    # getting the save-dialog box with the default extension txt. (txt file)  
+    file_to_save = asksaveasfile(defaultextension= '.txt') 
+    if file_to_save:  
+        print(address_book,file=file_to_save) 
 
 #  MAIN WINDOW 
 window = tk.Tk()
